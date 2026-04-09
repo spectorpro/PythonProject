@@ -99,5 +99,5 @@ if __name__ == "__main__":
 
     # Пример для даты
     date_example = "2024-03-11T02:26:18.671407"
-    print(f"{dateexample}  # входной аргумент")
-    print(f"{get_date(dateexample)}  # выход функции")
+    print(f"{date_example}  # входной аргумент")
+    print(f"{get_date(date_example)}  # выход функции")
