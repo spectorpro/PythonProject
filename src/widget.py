@@ -3,6 +3,7 @@ from masks import get_mask_account, get_mask_card_number
 Переиспользование уже существующих функций
 """
 
+
 def mask_account_card(account_or_card: str) -> str:
     """
     Обрабатывает информацию о картах и счетах, возвращая строку с замаскированным номером.
@@ -45,7 +46,6 @@ def mask_account_card(account_or_card: str) -> str:
     # Формируем итоговую строку
     result = f"{prefix} {masked_number}"
     return result
-
 
 
 def get_date(str_date: str) -> str:

@@ -29,7 +29,7 @@ def get_mask_card_number(card_number: str) -> str:
     full_masked = first_part + masked_middle + last_part
 
     # Разбиваем на блоки по 4 символа, разделяем пробелами
-    blocks = [full_masked[i : i + 4] for i in range(0, len(full_masked), 4)]
+    blocks = [full_masked[i: i + 4] for i in range(0, len(full_masked), 4)]
     result = " ".join(blocks)
 
     return result
