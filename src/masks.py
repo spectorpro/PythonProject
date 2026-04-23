@@ -65,13 +65,13 @@ def get_mask_account(account_number: str) -> str:
 
 
 # Примеры использования
-if __name__ == "__main__":
-    # Пример для карты
-    card = "7000792289606361"
-    print(f"{card}  # входной аргумент")
-    print(f"{get_mask_card_number(card)}  # выход функции")
+#if __name__ == "__main__":
+     #Пример для карты
+    #card = "7000792289606361"
+    #print(f"{card}  # входной аргумент")
+    #print(f"{get_mask_card_number(card)}  # выход функции")
 
     # Пример для счёта
-    account = "73654108430135874305"
-    print(f"\n{account}  # входной аргумент")
-    print(f"{get_mask_account(account)}  # выход функции")
+    #account = "73654108430135874305"
+    #print(f"\n{account}  # входной аргумент")
+    #print(f"{get_mask_account(account)}  # выход функции")
