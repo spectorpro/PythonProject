@@ -29,7 +29,7 @@ def get_mask_card_number(card_number: str) -> str:
     full_masked = first_part + masked_middle + last_part
 
     # Разбиваем на блоки по 4 символа, разделяем пробелами
-    blocks = [full_masked[i : i + 4] for i in range(0, len(full_masked), 4)]
+    blocks = [full_masked[i:i + 4] for i in range(0, len(full_masked), 4)]
     result = " ".join(blocks)
 
     return result
@@ -62,16 +62,3 @@ def get_mask_account(account_number: str) -> str:
     result = f"**{last_four}"
 
     return result
-
-
-# Примеры использования
-#if __name__ == "__main__":
-     #Пример для карты
-    #card = "7000792289606361"
-    #print(f"{card}  # входной аргумент")
-    #print(f"{get_mask_card_number(card)}  # выход функции")
-
-    # Пример для счёта
-    #account = "73654108430135874305"
-    #print(f"\n{account}  # входной аргумент")
-    #print(f"{get_mask_account(account)}  # выход функции")

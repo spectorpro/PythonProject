@@ -1,8 +1,9 @@
 import pytest
 from src.widget import mask_account_card, get_date
+from typing import List, Tuple, Optional, Dict, Any
 
 @pytest.fixture
-def card_test_cases():
+def card_test_cases() -> List[Tuple[str, str]]:
     """Фикстура с тестовыми случаями для карт."""
     return [
         ("Visa Classic 6831982476737658", "Visa Classic 6831 98** **** 7658"),
@@ -13,7 +14,7 @@ def card_test_cases():
     ]
 
 @pytest.fixture
-def account_test_cases():
+def account_test_cases() -> List[Tuple[str, str]]:
     """Фикстура с тестовыми случаями для счетов."""
     return [
         ("Счет 75106830613657916952", "Счет **6952"),
@@ -23,7 +24,7 @@ def account_test_cases():
     ]
 
 @pytest.fixture
-def mixed_test_cases():
+def mixed_test_cases() -> List[Tuple[str, str]]:
     """Фикстура со смешанными тестовыми случаями."""
     return [
         ("Visa 4111111111111111", "Visa 4111 11** **** 1111"),
@@ -42,30 +43,25 @@ def edge_cases():
         ("Счет ABC123DEF", None),  # Буквы и цифры смешанно, но нет чистого номера
     ]
 
-
-
-
-
-
-def test_cards_from_fixture(card_test_cases):
+def test_cards_from_fixture(card_test_cases: List[Tuple[str, str]]) -> None:
     """Тесты для карт с использованием фикстуры."""
     for input_str, expected in card_test_cases:
-        result = mask_account_card(input_str)
+        result: str = mask_account_card(input_str)
         assert result == expected, f"Failed for: {input_str}"
 
-def test_accounts_from_fixture(account_test_cases):
+def test_accounts_from_fixture(account_test_cases: List[Tuple[str, str]]) -> None:
     """Тесты для счетов с использованием фикстуры."""
     for input_str, expected in account_test_cases:
-        result = mask_account_card(input_str)
+        result: str = mask_account_card(input_str)
         assert result == expected, f"Failed for: {input_str}"
 
-def test_mixed_cases_from_fixture(mixed_test_cases):
+def test_mixed_cases_from_fixture(mixed_test_cases: List[Tuple[str, str]]) -> None:
     """Тесты со смешанными случаями из фикстуры."""
     for input_str, expected in mixed_test_cases:
-        result = mask_account_card(input_str)
+        result: str = mask_account_card(input_str)
         assert result == expected, f"Failed for: {input_str}"
 
-def test_edge_cases_from_fixture(edge_cases):
+def test_edge_cases_from_fixture(edge_cases: List[Tuple[str, Optional[str]]]) -> None:
     """Тесты граничных случаев и ошибок из фикстуры."""
     for input_str, _ in edge_cases:
         if input_str == "":  # Пустая строка
@@ -78,8 +74,9 @@ def test_edge_cases_from_fixture(edge_cases):
             with pytest.raises(ValueError, match="Номер карты должен содержать не менее 10 цифр"):
                 mask_account_card(input_str)
 
+
 @pytest.fixture
-def test_data():
+def test_data() -> List[Dict[str, Any]]:
     return [
         {'id': 1, 'state': 'EXECUTED', 'date': '2024-03-11T02:26:18.671407'},
         {'id': 2, 'state': 'PENDING', 'date': '2023-12-25T15:30:45.123456'},
@@ -89,9 +86,19 @@ def test_data():
         {'id': 6, 'state': 'EXECUTED', 'date': '2019-04-04T23:20:05.206878'},
     ]
 
-# Фикстура для граничных случаев дат
+
 @pytest.fixture
-def edge_case_dates():
+def edge_case_dates() -> List[str]:
+    """
+    Фикстура, возвращающая список дат для тестирования граничных случаев.
+
+    Возвращает:
+        Список строк с датами в формате ISO 8601, покрывающий:
+        - начало века;
+        - конец века;
+        - последний день февраля в невисокосном году;
+        - последний день февраля в високосном году.
+    """
     return [
         '2000-01-01T00:00:00.000000',  # Начало века
         '2100-12-31T23:59:59.999999',  # Конец века
@@ -100,9 +107,17 @@ def edge_case_dates():
     ]
 
 
-# Тест: корректное преобразование дат из тестовых данных
-def test_get_date_with_test_data(test_data):
-    expected_results = {
+def test_get_date_with_test_data(test_data: List[Dict[str, str]]) -> None:
+    """
+    Тест корректного преобразования дат из тестовых данных.
+
+    Аргументы:
+        test_data (List[Dict[str, str]]): Список словарей с тестовыми данными,
+            каждый словарь должен содержать ключ 'date' со строкой даты.
+
+    Проверяет, что функция get_date() корректно преобразует даты в формат ДД.ММ.ГГГГ.
+    """
+    expected_results: Dict[str, str] = {
         '2024-03-11T02:26:18.671407': '11.03.2024',
         '2023-12-25T15:30:45.123456': '25.12.2023',
         '2022-01-01T00:00:00.000000': '01.01.2022',
@@ -112,14 +127,24 @@ def test_get_date_with_test_data(test_data):
     }
 
     for item in test_data:
-        input_date = item['date']
-        expected = expected_results[input_date]
-        result = get_date(input_date)
+        input_date: str = item['date']
+        expected: str = expected_results[input_date]
+        result: str = get_date(input_date)
         assert result == expected, f"Ошибка преобразования даты {input_date}: получено {result}, ожидалось {expected}"
 
-# Тест: граничные случаи дат
-def test_get_date_edge_cases(edge_case_dates):
-    expected_results = [
+def test_get_date_edge_cases(edge_case_dates: List[str]) -> None:
+    """
+    Тест преобразования дат в граничных случаях.
+
+    Аргументы:
+        edge_case_dates (List[str]): Список строк с датами для проверки граничных случаев,
+            предоставляется фикстурой edge_case_dates.
+
+    Проверяет корректность преобразования дат, охватывающих:
+    - начало и конец века;
+    - високосные и невисокосные годы.
+    """
+    expected_results: List[str] = [
         '01.01.2000',
         '31.12.2100',
         '28.02.1900',
