@@ -1,6 +1,7 @@
 import pytest
 from src.masks import get_mask_card_number, get_mask_account
 
+
 def test_standard_16_digit_card():
     """Тест с обычным 16‑значным номером карты."""
     result = get_mask_card_number("1234567890123456")
@@ -44,3 +45,5 @@ def test_expected_length_bank_account():
     """Тест с номером счета, содержащим меньшую длину."""
     result = get_mask_account("7108430135874305")
     assert result == "**4305"
+
+

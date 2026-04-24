@@ -69,35 +69,35 @@ def get_date(str_date: str) -> str:
 
 
 # Примеры использования
-if __name__ == "__main__":
+#if __name__ == "__main__":
     # Примеры для карты
-    card_examples = [
-        "Visa Platinum 7000792289606361",
-        "Maestro 1596837868705199",
-        "MasterCard 7158300734726758",
-        "Visa Classic 6831982476737658",
-        "Visa Platinum 8990922113665229",
-        "Visa Gold 5999414228426353"
-    ]
+    #card_examples = [
+        #"Visa Platinum 7000792289606361",
+        #"Maestro 1596837868705199",
+        #"MasterCard 7158300734726758",
+        #"Visa Classic 6831982476737658",
+        #"Visa Platinum 8990922113665229",
+        #"Visa Gold 5999414228426353"
+    #]
 
-    for card in card_examples:
-        print(f"{card}  # входной аргумент")
-        print(f"{mask_account_card(card)}  # выход функции")
-        print()
+    #for card in card_examples:
+        #print(f"{card}  # входной аргумент")
+        #print(f"{mask_account_card(card)}  # выход функции")
+        #print()
 
     # Примеры для счёта
-    account_examples = [
-        "Счет 73654108430135874305",
-        "Счет 64686473678894779589",
-        "Счет 35383033474447895560"
-    ]
+    #account_examples = [
+        #"Счет 73654108430135874305",
+        #"Счет 64686473678894779589",
+        #"Счет 35383033474447895560"
+    #]
 
-    for account in account_examples:
-        print(f"{account}  # входной аргумент")
-        print(f"{mask_account_card(account)}  # выход функции")
-        print()
+    #for account in account_examples:
+        #print(f"{account}  # входной аргумент")
+        #print(f"{mask_account_card(account)}  # выход функции")
+        #print()
 
     # Пример для даты
-    date_example = "2024-03-11T02:26:18.671407"
-    print(f"{date_example}  # входной аргумент")
-    print(f"{get_date(date_example)}  # выход функции")
+    #date_example = "2024-03-11T02:26:18.671407"
+    #print(f"{date_example}  # входной аргумент")
+    #print(f"{get_date(date_example)}  # выход функции")
