@@ -8,32 +8,39 @@ def test_standard_16_digit_card() -> None:
     result: str = get_mask_card_number("1234567890123456")
     assert result == "1234 56** **** 3456"
 
+
 def test_card_with_spaces() -> None:
     """Тест с номером карты, содержащим пробелы."""
     result: str = get_mask_card_number("1234 5678 9012 3456")
     assert result == "1234 56** **** 3456"
 
+
 @pytest.fixture
 def card_with_dashes() -> str:
     return "1234 56** **** 3456"
 
+
 def test_card_with_dashes(card_with_dashes: str) -> None:
     assert get_mask_card_number("1234-567890-123456") == card_with_dashes
+
 
 def test_standard_20_digit_bank_account() -> None:
     """Тест с обычным 20‑значным номером счёта."""
     result: str = get_mask_account("73654108430135874305")
     assert result == "**4305"
 
+
 def test_card_with_spaces_bank_account() -> None:
     """Тест с номером счёта, содержащим нечисловые символы."""
     result: str = get_mask_account("73f65410843f0135874305")
     assert result == "**4305"
 
+
 def test_expected_length_bank_account() -> None:
     """Тест с номером счёта, содержащим меньшую длину."""
     result: str = get_mask_account("7108430135874305")
     assert result == "**4305"
+
 
 @pytest.fixture
 def invalid_card_numbers() -> List[str]:
@@ -47,6 +54,7 @@ def invalid_card_numbers() -> List[str]:
         "   ",  # только пробелы
     ]
 
+
 @pytest.fixture
 def edge_case_card_numbers() -> List[str]:
     """Фикстура с пограничными случаями."""
@@ -56,11 +64,13 @@ def edge_case_card_numbers() -> List[str]:
         "1" * 20,  # очень длинный номер
     ]
 
+
 def test_invalid_card_numbers(invalid_card_numbers: List[str]) -> None:
     """Тест невалидных номеров карт — должны вызывать ValueError."""
     for card in invalid_card_numbers:
         with pytest.raises(ValueError):
             get_mask_card_number(card)
+
 
 def test_edge_cases(edge_case_card_numbers: List[str]) -> None:
     """Тест пограничных случаев."""
@@ -77,6 +87,7 @@ def test_edge_cases(edge_case_card_numbers: List[str]) -> None:
     result_long: str = get_mask_card_number(long_card)
     assert len(result_long.replace(" ", "")) == 20
 
+
 @pytest.fixture
 def invalid_account_numbers() -> List[str]:
     """Фикстура с невалидными номерами счетов."""
@@ -90,6 +101,7 @@ def invalid_account_numbers() -> List[str]:
         "1a2b3c",  # смешанные символы без цифр
     ]
 
+
 @pytest.fixture
 def edge_case_account_numbers() -> List[str]:
     """Фикстура с пограничными случаями."""
@@ -99,11 +111,13 @@ def edge_case_account_numbers() -> List[str]:
         "1" * 30,  # очень длинный номер (30 цифр)
     ]
 
+
 def test_invalid_account_numbers(invalid_account_numbers: List[str]) -> None:
     """Тест невалидных номеров счетов — должны вызывать ValueError."""
     for account in invalid_account_numbers:
         with pytest.raises(ValueError, match="Номер счёта должен содержать не менее 4 цифр"):
             get_mask_account(account)
+
 
 def test_edge_cases_two(edge_case_account_numbers: List[str]) -> None:
     """Тест пограничных случаев."""

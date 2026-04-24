@@ -1,10 +1,11 @@
 import pytest
 from src.processing import filter_by_state, sort_by_date
 from datetime import datetime, timedelta
+from typing import List, Dict, Any
 
 
 @pytest.fixture
-def basic_sample_data():
+def basic_sample_data() -> List[Dict[str, Any]]:
     """Базовый набор данных с разными статусами и датами."""
     base_date = datetime(2023, 1, 1)
     return [
@@ -17,13 +18,13 @@ def basic_sample_data():
 
 
 @pytest.fixture
-def empty_data():
+def empty_data() -> List:
     """Пустой список данных."""
     return []
 
 
 @pytest.fixture
-def data_without_executed():
+def data_without_executed() -> List[Dict[str, Any]]:
     """Данные без статуса EXECUTED."""
     base_date = datetime(2023, 2, 1)
     return [
@@ -33,7 +34,7 @@ def data_without_executed():
 
 
 @pytest.fixture
-def data_with_missing_state():
+def data_with_missing_state() -> List[Dict[str, Any]]:
     """Данные с отсутствующим ключом 'state' у некоторых записей."""
     base_date = datetime(2023, 3, 1)
     return [
@@ -44,7 +45,7 @@ def data_with_missing_state():
 
 
 @pytest.fixture
-def data_with_duplicate_states():
+def data_with_duplicate_states() -> List[Dict[str, Any]]:
     """Данные с повторяющимися статусами и разными датами."""
     base_date = datetime(2023, 4, 1)
     return [
@@ -56,7 +57,7 @@ def data_with_duplicate_states():
 
 
 @pytest.fixture
-def data_with_edge_cases():
+def data_with_edge_cases() -> List[Dict[str, Any]]:
     """Крайние случаи: пустые строки, None, специальные символы в статусах"""
     base_date = datetime(2023, 5, 1)
     return [
@@ -69,7 +70,7 @@ def data_with_edge_cases():
 
 
 @pytest.fixture
-def data_with_various_dates():
+def data_with_various_dates() -> List[Dict[str, Any]]:
     """Данные с широким диапазоном дат для проверки временной фильтрации."""
     start_date = datetime(2022, 12, 1)
     return [
@@ -82,7 +83,7 @@ def data_with_various_dates():
 
 
 @pytest.fixture
-def complex_data_mix():
+def complex_data_mix() -> List[Dict[str, Any]]:
     """Сложный микс: разные статусы, даты, пропущенные поля."""
     base_date = datetime(2023, 6, 1)
     return [
@@ -105,7 +106,11 @@ def complex_data_mix():
     ('', 0),        # Пустой статус
     (' ', 0),       # Пробел как статус
 ])
-def test_filter_by_state_parametrized(basic_sample_data, test_state, expected_count):
+def test_filter_by_state_parametrized(
+    basic_sample_data: List[Dict[str, Any]],
+    test_state: str,
+    expected_count: int
+) -> None:
     """Тестирование фильтрации для различных статусов (включая отсутствующие)."""
     result = filter_by_state(basic_sample_data, test_state)
     assert len(result) == expected_count
@@ -113,7 +118,7 @@ def test_filter_by_state_parametrized(basic_sample_data, test_state, expected_co
         assert all(item['state'] == test_state for item in result)
 
 
-def test_filter_default_state(basic_sample_data):
+def test_filter_default_state(basic_sample_data: List[Dict[str, Any]]) -> None:
     """Тестирование фильтрации с состоянием по умолчанию."""
     result = filter_by_state(basic_sample_data)
     assert len(result) == 2
@@ -122,7 +127,7 @@ def test_filter_default_state(basic_sample_data):
     assert result[1]['id'] == 4
 
 
-def test_filter_specific_state(basic_sample_data):
+def test_filter_specific_state(basic_sample_data: List[Dict[str, Any]]) -> None:
     """Тестирование фильтрации по конкретному статусу."""
     result = filter_by_state(basic_sample_data, 'PENDING')
     assert len(result) == 1
@@ -131,21 +136,21 @@ def test_filter_specific_state(basic_sample_data):
     assert result[0]['date'] == datetime(2023, 1, 2)
 
 
-def test_no_matching_state(data_without_executed):
+def test_no_matching_state(data_without_executed: List[Dict[str, Any]]) -> None:
     """Тестирование случая, когда нет записей с указанным статусом."""
     result = filter_by_state(data_without_executed, 'EXECUTED')
     assert len(result) == 0
     assert result == []
 
 
-def test_empty_input_list(empty_data):
+def test_empty_input_list(empty_data: List[Dict[str, Any]]) -> None:
     """Тестирование с пустым входным списком."""
     result = filter_by_state(empty_data, 'EXECUTED')
     assert len(result) == 0
     assert result == []
 
 
-def test_missing_state_key(data_with_missing_state):
+def test_missing_state_key(data_with_missing_state: List[Dict[str, Any]]) -> None:
     """Тестирование данных, где у некоторых записей нет ключа 'state'."""
     result = filter_by_state(data_with_missing_state, 'EXECUTED')
     # Должны быть только записи с state == 'EXECUTED', остальные игнорируются
@@ -154,7 +159,7 @@ def test_missing_state_key(data_with_missing_state):
     assert result[0]['id'] == 10
 
 
-def test_duplicate_states(data_with_duplicate_states):
+def test_duplicate_states(data_with_duplicate_states: List[Dict[str, Any]]) -> None:
     """Тестирование данных с повторяющимися статусами."""
     result = filter_by_state(data_with_duplicate_states, 'EXECUTED')
     assert len(result) == 3
@@ -164,7 +169,7 @@ def test_duplicate_states(data_with_duplicate_states):
     assert sorted(executed_ids) == [11, 12, 14]
 
 
-def test_edge_cases_states(data_with_edge_cases):
+def test_edge_cases_states(data_with_edge_cases: List[Dict[str, Any]]) -> None:
     """Тестирование крайних случаев статусов."""
     # Тест для пустого статуса
     empty_result = filter_by_state(data_with_edge_cases, '')
@@ -182,7 +187,7 @@ def test_edge_cases_states(data_with_edge_cases):
     assert case_result[0]['state'] == 'executed'
 
 
-def test_date_preservation(basic_sample_data):
+def test_date_preservation(basic_sample_data: List[Dict[str, Any]]) -> None:
     """Проверка, что даты сохраняются корректно при фильтрации."""
     result = filter_by_state(basic_sample_data, 'FAILED')
     assert len(result) == 1
@@ -190,7 +195,7 @@ def test_date_preservation(basic_sample_data):
     assert isinstance(result[0]['date'], datetime)
 
 
-def test_complex_data_mix_filtering(complex_data_mix):
+def test_complex_data_mix_filtering(complex_data_mix: List[Dict[str, Any]]) -> None:
     """Тестирование сложной комбинации данных с пропущенными полями."""
     result = filter_by_state(complex_data_mix, 'EXECUTED')
     assert len(result) == 2
@@ -210,10 +215,10 @@ def test_complex_data_mix_filtering(complex_data_mix):
     assert 'date' not in executed2  # Дата отсутствует в исходной записи
 
 
-def test_multiple_filters_consistency(basic_sample_data):
+def test_multiple_filters_consistency(basic_sample_data: List[Dict[str, Any]]) -> None:
     """Проверка консистентности при последовательных вызовах с разными статусами."""
-    states_to_test = ['EXECUTED', 'PENDING', 'CANCELED', 'FAILED']
-    total_found = 0
+    states_to_test: List[str] = ['EXECUTED', 'PENDING', 'CANCELED', 'FAILED']
+    total_found: int = 0
 
     for state in states_to_test:
         result = filter_by_state(basic_sample_data, state)
@@ -228,7 +233,7 @@ def test_multiple_filters_consistency(basic_sample_data):
 
 
 @pytest.fixture
-def sample_data():
+def sample_data() -> List[Dict[str, Any]]:
     """Базовый набор данных с разными датами."""
     return [
         {'id': 1, 'date': '2023-01-15T10:30:00', 'state': 'active'},
@@ -239,7 +244,7 @@ def sample_data():
 
 
 @pytest.fixture
-def data_with_same_dates():
+def data_with_same_dates() -> List[Dict[str, Any]]:
     """Данные с одинаковыми датами для проверки стабильности сортировки."""
     return [
         {'id': 1, 'date': '2023-01-15T10:30:00', 'state': 'active'},
@@ -249,7 +254,7 @@ def data_with_same_dates():
 
 
 @pytest.fixture
-def data_with_z_suffix():
+def data_with_z_suffix() -> List[Dict[str, Any]]:
     """Данные с датами в формате ISO с суффиксом Z (UTC)."""
     return [
         {'id': 1, 'date': '2023-01-15T10:30:00Z', 'state': 'active'},
@@ -258,7 +263,7 @@ def data_with_z_suffix():
     ]
 
 
-def test_sort_ascending(sample_data):
+def test_sort_ascending(sample_data: List[Dict[str, Any]]) -> None:
     """Тест сортировки по возрастанию дат."""
     result = sort_by_date(sample_data, reverse=False)
     dates = [item['date'] for item in result]
@@ -271,7 +276,7 @@ def test_sort_ascending(sample_data):
     assert dates == expected_dates
 
 
-def test_same_dates_stability(data_with_same_dates):
+def test_same_dates_stability(data_with_same_dates: List[Dict[str, Any]]) -> None:
     """Тест стабильности сортировки при одинаковых датах."""
     original_order = [item['id'] for item in data_with_same_dates]
     result = sort_by_date(data_with_same_dates)
@@ -280,7 +285,7 @@ def test_same_dates_stability(data_with_same_dates):
     assert result_order == original_order
 
 
-def test_z_suffix_handling(data_with_z_suffix):
+def test_z_suffix_handling(data_with_z_suffix: List[Dict[str, Any]]) -> None:
     """Тест обработки дат с суффиксом Z (UTC)."""
     result = sort_by_date(data_with_z_suffix)
     dates = [item['date'] for item in result]

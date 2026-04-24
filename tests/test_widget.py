@@ -2,6 +2,7 @@ import pytest
 from src.widget import mask_account_card, get_date
 from typing import List, Tuple, Optional, Dict, Any
 
+
 @pytest.fixture
 def card_test_cases() -> List[Tuple[str, str]]:
     """Фикстура с тестовыми случаями для карт."""
@@ -13,6 +14,7 @@ def card_test_cases() -> List[Tuple[str, str]]:
         ("Maestro 6759000000000001", "Maestro 6759 00** **** 0001"),
     ]
 
+
 @pytest.fixture
 def account_test_cases() -> List[Tuple[str, str]]:
     """Фикстура с тестовыми случаями для счетов."""
@@ -22,6 +24,7 @@ def account_test_cases() -> List[Tuple[str, str]]:
         ("Накопительный счет 44812258784861134719", "Накопительный счет 4481 22** **** **** 4719"),
         ("Сберегательный счёт 12345678901234567890", "Сберегательный счёт 1234 56** **** **** 7890"),
     ]
+
 
 @pytest.fixture
 def mixed_test_cases() -> List[Tuple[str, str]]:
@@ -33,8 +36,9 @@ def mixed_test_cases() -> List[Tuple[str, str]]:
         ("Текущий счёт 99998888777766665555", "Текущий счёт 9999 88** **** **** 5555"),
     ]
 
+
 @pytest.fixture
-def edge_cases():
+def edge_cases() -> List[Tuple[str, Optional[None]]]:
     """Фикстура с граничными случаями и ошибками."""
     return [
         ("", None),  # Пустая строка
@@ -43,11 +47,13 @@ def edge_cases():
         ("Счет ABC123DEF", None),  # Буквы и цифры смешанно, но нет чистого номера
     ]
 
+
 def test_cards_from_fixture(card_test_cases: List[Tuple[str, str]]) -> None:
     """Тесты для карт с использованием фикстуры."""
     for input_str, expected in card_test_cases:
         result: str = mask_account_card(input_str)
         assert result == expected, f"Failed for: {input_str}"
+
 
 def test_accounts_from_fixture(account_test_cases: List[Tuple[str, str]]) -> None:
     """Тесты для счетов с использованием фикстуры."""
@@ -55,11 +61,13 @@ def test_accounts_from_fixture(account_test_cases: List[Tuple[str, str]]) -> Non
         result: str = mask_account_card(input_str)
         assert result == expected, f"Failed for: {input_str}"
 
+
 def test_mixed_cases_from_fixture(mixed_test_cases: List[Tuple[str, str]]) -> None:
     """Тесты со смешанными случаями из фикстуры."""
     for input_str, expected in mixed_test_cases:
         result: str = mask_account_card(input_str)
         assert result == expected, f"Failed for: {input_str}"
+
 
 def test_edge_cases_from_fixture(edge_cases: List[Tuple[str, Optional[str]]]) -> None:
     """Тесты граничных случаев и ошибок из фикстуры."""
@@ -131,6 +139,7 @@ def test_get_date_with_test_data(test_data: List[Dict[str, str]]) -> None:
         expected: str = expected_results[input_date]
         result: str = get_date(input_date)
         assert result == expected, f"Ошибка преобразования даты {input_date}: получено {result}, ожидалось {expected}"
+
 
 def test_get_date_edge_cases(edge_case_dates: List[str]) -> None:
     """
