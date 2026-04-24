@@ -89,3 +89,46 @@ def test_edge_cases(edge_case_card_numbers):
     long_card = "1" * 20
     result_long = get_mask_card_number(long_card)
     assert len(result_long.replace(" ", "")) == 20
+
+@pytest.fixture
+def invalid_account_numbers():
+    """Фикстура с невалидными номерами счетов."""
+    return [
+        "123",  # слишком короткий
+        "12",  # недостаточно цифр
+        "",  # пустая строка
+        "abc123",  # только буквы
+        "----",  # только дефисы
+        "   ",  # только пробелы
+        "1a2b3c",  # смешанные символы без цифр
+    ]
+
+@pytest.fixture
+def edge_case_account_numbers():
+    """Фикстура с пограничными случаями."""
+    return [
+        "1234",  # ровно 4 цифры
+        "12345",  # 5 цифр
+        "1" * 30,  # очень длинный номер (30 цифр)
+    ]
+
+def test_invalid_account_numbers(invalid_account_numbers):
+    """Тест невалидных номеров счетов — должны вызывать ValueError."""
+    for account in invalid_account_numbers:
+        with pytest.raises(ValueError, match="Номер счёта должен содержать не менее 4 цифр"):
+            get_mask_account(account)
+
+def test_edge_cases(edge_case_account_numbers):
+    """Тест пограничных случаев."""
+    # Ровно 4 цифры: должны видеть все 4 цифры после **
+    result_4 = get_mask_account("1234")
+    assert result_4 == "**1234"
+
+    # 5 цифр: должны видеть последние 4 после **
+    result_5 = get_mask_account("12345")
+    assert result_5 == "**2345"
+
+    # Очень длинный номер: проверяем, что видим только последние 4 цифры
+    long_account = "1" * 30
+    result_long = get_mask_account(long_account)
+    assert result_long == "**1111"
