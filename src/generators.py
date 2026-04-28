@@ -23,3 +23,16 @@ def filter_by_currency(transactions: list[Dict[str, Any]], currency_code: str) -
         if 'code' in currency and currency['code'] == currency_code:
             yield transaction
 
+def transaction_descriptions(transactions):
+    """Генератор transaction_descriptions,
+    который принимает список словарей с транзакциями и возвращает
+    описание каждой операции по очереди.
+    """
+    description_templates = [
+        "Перевод организации",
+        "Перевод со счета на счет",
+        "Перевод с карты на карту"
+    ]
+    num_templates = len(description_templates)
+    for i, transaction in enumerate(transactions):
+        yield description_templates[i % num_templates]
