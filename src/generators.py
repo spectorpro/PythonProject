@@ -24,7 +24,7 @@ def filter_by_currency(transactions: list[Dict[str, Any]], currency_code: str) -
             yield transaction
 
 
-def transaction_descriptions(transactions):
+def transaction_descriptions(transactions: list[dict]) -> str:
     """Генератор transaction_descriptions,
     который принимает список словарей с транзакциями и возвращает
     описание каждой операции по очереди.
