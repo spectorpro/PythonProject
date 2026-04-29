@@ -1,8 +1,8 @@
 import pytest
 from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
-from typing import Dict, Any, List, Iterator
+from typing import Dict, Any, List, Generator
 
-# Фикстура для базовых транзакций
+
 @pytest.fixture
 def sample_transactions() -> List[Dict[str, Any]]:
     """Фикстура: тестовые транзакции с разными валютами."""
@@ -95,7 +95,7 @@ def test_empty_transactions_list(empty_transactions: List[Dict[str, Any]]) -> No
     assert len(result) == 0
 
 
-def test_currency_without_code( sample_transactions: List[Dict[str, Any]],incomplete_transactions: List[Dict[str, Any]]) -> None:
+def test_currency_without_code(sample_transactions: List[Dict[str, Any]], incomplete_transactions: List[Dict[str, Any]]) -> None:
     """Тест пропуска транзакций, где в currency нет поля code."""
     transactions_with_missing_code: List[Dict[str, Any]] = (
             sample_transactions + [incomplete_transactions[2]]

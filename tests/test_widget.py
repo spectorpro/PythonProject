@@ -139,23 +139,3 @@ def test_get_date_with_test_data(test_data: List[Dict[str, str]]) -> None:
         expected: str = expected_results[input_date]
         result: str = get_date(input_date)
         assert result == expected, f"Ошибка преобразования даты {input_date}: получено {result}, ожидалось {expected}"
-
-
-def test_get_date_edge_cases(edge_case_dates: List[str]) -> None:
-    """
-    Тест преобразования дат в граничных случаях.
-
-    Аргументы:
-        edge_case_dates (List[str]): Список строк с датами для проверки граничных случаев,
-            предоставляется фикстурой edge_case_dates.
-
-    Проверяет корректность преобразования дат, охватывающих:
-    - начало и конец века;
-    - високосные и невисокосные годы.
-    """
-    expected_results: List[str] = [
-        '01.01.2000',
-        '31.12.2100',
-        '28.02.1900',
-        '29.02.2000',
-    ]
