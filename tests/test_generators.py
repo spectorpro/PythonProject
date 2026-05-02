@@ -1,6 +1,13 @@
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import List
+
 import pytest
-from src.generators import filter_by_currency, transaction_descriptions, card_number_generator
-from typing import Dict, Any, List, Generator
+
+from src.generators import card_number_generator
+from src.generators import filter_by_currency
+from src.generators import transaction_descriptions
 
 
 @pytest.fixture

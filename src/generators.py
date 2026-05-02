@@ -1,4 +1,7 @@
-from typing import Iterator, Dict, Any, Generator
+from typing import Any
+from typing import Dict
+from typing import Generator
+from typing import Iterator
 
 
 def filter_by_currency(transactions: list[Dict[str, Any]], currency_code: str) -> Iterator[Dict[str, Any]]:

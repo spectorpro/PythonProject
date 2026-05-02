@@ -1,6 +1,13 @@
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+
 import pytest
-from src.widget import mask_account_card, get_date
-from typing import List, Tuple, Optional, Dict, Any
+
+from src.widget import get_date
+from src.widget import mask_account_card
 
 
 @pytest.fixture
