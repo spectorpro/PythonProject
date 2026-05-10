@@ -71,7 +71,6 @@ def incomplete_transactions() -> List[Dict[str, Any]]:
 # Фикстура для пустой транзакции
 @pytest.fixture
 def empty_transactions() -> List[Dict[str, Any]]:
-    """Фикстура: пустой список транзакций."""
     return []
 
 

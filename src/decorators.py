@@ -1,6 +1,8 @@
 import functools
-import traceback
-from typing import Any, Callable, Optional
+from typing import Any
+from typing import Callable
+from typing import Optional
+
 
 def log(filename: Optional[str] = None) -> Callable:
     """
@@ -12,23 +14,25 @@ def log(filename: Optional[str] = None) -> Callable:
     """
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            func_name = func.__name__
-            log_message = f"{func_name} "
+        def wrapper(*args: Any, **kwargs: Any) -> Any:
+            func_name: str = func.__name__
+            log_message: str = f"{func_name} "
 
             try:
-                result = func(*args, **kwargs)
+                result: Any = func(*args, **kwargs)
                 log_message += "ok"
                 _write_log(log_message, filename)
                 return result
             except Exception as e:
-                error_type = type(e).__name__
-                inputs_repr = f"Inputs: {args}, {kwargs}"
+                error_type: str = type(e).__name__
+                inputs_repr: str = f"Inputs: {args}, {kwargs}"
                 log_message += f"error: {error_type}. {inputs_repr}"
                 _write_log(log_message, filename)
                 raise
         return wrapper
+
     return decorator
+
 
 def _write_log(message: str, filename: Optional[str] = None) -> None:
     """
