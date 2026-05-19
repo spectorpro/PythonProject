@@ -3,32 +3,40 @@ from unittest.mock import patch, mock_open
 from utils import load_transactions
 from external_api import convert_to_rubles
 
-
 class TestUtils(unittest.TestCase):
 
-    @patch('os.path.exists', return_value=False)
-    def test_load_transactions_file_not_found(self, mock_exists):
-        result = load_transactions('non_existent_file.json')
-        self.assertEqual(result, [])
+    def test_load_transactions_file_not_found(self):
+        with patch('os.path.exists', return_value=False):
+            result = load_transactions('non_existent_file.json')
+            self.assertEqual(result, [])
 
-    @patch('builtins.open', mock_open(read_data='{"not": "a list"}'))
-    @patch('os.path.exists', return_value=True)
-    def test_load_transactions_not_a_list(self, mock_exists, mock_file):
-        result = load_transactions('test.json')
-        self.assertEqual(result, [])
+    def test_load_transactions_not_a_file(self):
+        with patch('os.path.exists', return_value=True), \
+             patch('os.path.isfile', return_value=False):
+            result = load_transactions('some_directory')
+            self.assertEqual(result, [])
 
-    @patch('builtins.open', mock_open(read_data='[{"id": 1, "amount": 100}]'))
-    @patch('os.path.exists', return_value=True)
-    def test_load_transactions_valid_data(self, mock_exists, mock_file):
-        result = load_transactions('test.json')
-        expected = [{"id": 1, "amount": 100}]
-        self.assertEqual(result, expected)
+    def test_load_transactions_not_a_list(self):
+        with patch('os.path.exists', return_value=True), \
+             patch('os.path.isfile', return_value=True), \
+             patch('builtins.open', mock_open(read_data='{"not": "a list"}')):
+            result = load_transactions('test.json')
+            self.assertEqual(result, [])
 
-    @patch('builtins.open', mock_open(read_data='invalid json'))
-    @patch('os.path.exists', return_value=True)
-    def test_load_transactions_invalid_json(self, mock_exists, mock_file):
-        result = load_transactions('test.json')
-        self.assertEqual(result, [])
+    def test_load_transactions_valid_data(self):
+        with patch('os.path.exists', return_value=True), \
+             patch('os.path.isfile', return_value=True), \
+             patch('builtins.open', mock_open(read_data='[{"id": 1, "amount": 100}]')):
+            result = load_transactions('test.json')
+            expected = [{"id": 1, "amount": 100}]
+            self.assertEqual(result, expected)
+
+    def test_load_transactions_invalid_json(self):
+        with patch('os.path.exists', return_value=True), \
+             patch('os.path.isfile', return_value=True), \
+             patch('builtins.open', mock_open(read_data='invalid json')):
+            result = load_transactions('test.json')
+            self.assertEqual(result, [])
 
 class TestExternalAPI(unittest.TestCase):
 

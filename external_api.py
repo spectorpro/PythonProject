@@ -1,17 +1,20 @@
 import os
 import requests
 from dotenv import load_dotenv
-from typing import Optional
+from typing import Optional, Dict
+import logging
 
 load_dotenv()
 
-API_KEY = os.getenv('EXCHANGE_API_KEY')
-BASE_URL = 'https://api.apilayer.com/exchangerates_data/latest'
+logger = logging.getLogger(__name__)
 
+# Заданный API-ключ
+API_KEY = "MYzzlLze2rEY9Er22o6K7GRLbbB1qj0Y"
+BASE_URL = "https://api.apilayer.com/exchangerates_data/latest"
 
-def get_exchange_rate(base_currency: str, target_currency: str = 'RUB') -> Optional[float]:
+def get_exchange_rate(base_currency: str, target_currency: str = "RUB") -> Optional[float]:
     """
-    Получает курс обмена валюты через API Apilayer.
+    Получает курс обмена валюты через API Apilayer с корректной обработкой ошибок.
 
     Args:
         base_currency (str): Исходная валюта.
@@ -20,50 +23,104 @@ def get_exchange_rate(base_currency: str, target_currency: str = 'RUB') -> Optio
     Returns:
         Optional[float]: Курс обмена или None в случае ошибки.
     """
+    if not API_KEY:
+        logger.error("API ключ не найден")
+        return None
+
     headers = {
-        'apikey': API_KEY
+        "apikey": API_KEY
     }
     params = {
-        'base': base_currency,
-        'symbols': target_currency
+        "base": base_currency,
+        "symbols": target_currency
     }
 
     try:
-        response = requests.get(BASE_URL, headers=headers, params=params)
-        response.raise_for_status()
+        response = requests.get(
+            BASE_URL,
+            headers=headers,
+            params=params,
+            timeout=10  # Таймаут 10 секунд
+        )
+
+        # Обработка HTTP-ошибок
+        if response.status_code == 401:
+            logger.error("Ошибка аутентификации: неверный API ключ")
+            return None
+        elif response.status_code == 429:
+            logger.error("Превышен лимит запросов к API")
+            return None
+        elif response.status_code != 200:
+            logger.error(f"HTTP ошибка {response.status_code}: {response.text}")
+            return None
+
         data = response.json()
 
-        if 'rates' in data and target_currency in data['rates']:
-            return float(data['rates'][target_currency])
-        else:
-            print(f"Ошибка: Курс для {target_currency} не найден в ответе API")
+        # Проверка структуры ответа API
+        if not data.get("success", False):
+            error_msg = data.get("error", {}).get("info", "Неизвестная ошибка API")
+            logger.error(f"API вернуло ошибку: {error_msg}")
             return None
-    except requests.RequestException as e:
-        print(f"Ошибка запроса к API: {e}")
+
+        if "rates" in data and target_currency in data["rates"]:
+            rate = float(data["rates"][target_currency])
+            logger.info(f"Получен курс: 1 {base_currency} = {rate} {target_currency}")
+            return rate
+        else:
+            logger.error(f"Курс для {target_currency} не найден в ответе API")
+            return None
+    except requests.exceptions.Timeout:
+        logger.error("Таймаут запроса к API (превышено 10 с)")
         return None
-    except (KeyError, ValueError) as e:
-        print(f"Ошибка обработки ответа API: {e}")
+    except requests.exceptions.ConnectionError:
+        logger.error("Ошибка подключения к API")
+        return None
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Общая ошибка запроса к API: {e}")
+        return None
+    except (KeyError, ValueError, TypeError) as e:
+        logger.error(f"Ошибка обработки ответа API: {e}")
         return None
 
 
 def convert_to_rubles(transaction: Dict) -> float:
     """
-    Конвертирует сумму транзакции в рубли.
+    Конвертирует сумму транзакции в рубли с валидацией данных.
 
     Args:
         transaction (Dict): Транзакция с полями 'amount' и 'currency'.
 
     Returns:
         float: Сумма в рублях.
-    """
-    amount = transaction.get('amount', 0.0)
-    currency = transaction.get('currency', 'RUB')
 
-    if currency == 'RUB':
-        return float(amount)
+    Raises:
+        ValueError: Если транзакция содержит некорректные данные.
+    """
+    # Валидация входных данных
+    if not isinstance(transaction, dict):
+        raise ValueError("Транзакция должна быть словарем")
+
+    amount = transaction.get("amount")
+    currency = transaction.get("currency")
+
+    if amount is None:
+        raise ValueError("Транзакция не содержит поле 'amount'")
+    if currency is None:
+        raise ValueError("Транзакция не содержит поле 'currency'")
+
+    try:
+        amount = float(amount)
+    except (ValueError, TypeError):
+        raise ValueError(f"Некорректное значение amount: {amount}")
+
+    if currency == "RUB":
+        logger.info(f"Транзакция в RUB: {amount} RUB")
+        return amount
 
     rate = get_exchange_rate(currency)
     if rate is not None:
-        return float(amount * rate)
+        result = amount * rate
+        logger.info(f"Конвертация: {amount} {currency} = {result:.2f} RUB (курс: {rate})")
+        return result
     else:
         raise ValueError(f"Не удалось получить курс для валюты {currency}")
