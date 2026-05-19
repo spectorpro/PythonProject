@@ -1,7 +1,8 @@
 import json
-import os
-from typing import List, Dict
 import logging
+import os
+from typing import Dict
+from typing import List
 
 # Настройка логирования вместо print
 logging.basicConfig(level=logging.INFO)

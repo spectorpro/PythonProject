@@ -1,8 +1,10 @@
+import logging
 import os
+from typing import Dict
+from typing import Optional
+
 import requests
 from dotenv import load_dotenv
-from typing import Optional, Dict
-import logging
 
 load_dotenv()
 
@@ -11,6 +13,7 @@ logger = logging.getLogger(__name__)
 # Заданный API-ключ
 API_KEY = "MYzzlLze2rEY9Er22o6K7GRLbbB1qj0Y"
 BASE_URL = "https://api.apilayer.com/exchangerates_data/latest"
+
 
 def get_exchange_rate(base_currency: str, target_currency: str = "RUB") -> Optional[float]:
     """

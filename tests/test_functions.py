@@ -1,7 +1,10 @@
 import unittest
-from unittest.mock import patch, mock_open
-from utils import load_transactions
+from unittest.mock import mock_open
+from unittest.mock import patch
+
 from external_api import convert_to_rubles
+from utils import load_transactions
+
 
 class TestUtils(unittest.TestCase):
 
@@ -38,6 +41,7 @@ class TestUtils(unittest.TestCase):
             result = load_transactions('test.json')
             self.assertEqual(result, [])
 
+
 class TestExternalAPI(unittest.TestCase):
 
     @patch('external_api.get_exchange_rate', return_value=75.0)
@@ -62,6 +66,7 @@ class TestExternalAPI(unittest.TestCase):
         transaction = {'amount': 10, 'currency': 'USD'}
         with self.assertRaises(ValueError):
             convert_to_rubles(transaction)
+
 
 if __name__ == '__main__':
     unittest.main()
