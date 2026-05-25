@@ -12,6 +12,16 @@ files = [
 ]
 
 [[package]]
+name = "logging"
+version = "0.4.9.6"
+description = "A logging module for Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "logging-0.4.9.6.tar.gz", hash = "sha256:26f6b50773f085042d301085bd1bf5d9f3735704db9f37c1ce6d8b85c38f2417"},
+]
+
+[[package]]
 name = "self"
 version = "2020.12.3"
 description = "@self decorator makes method return self (jQuery-like chaining)"
@@ -27,4 +37,4 @@ decorator = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.14"
-content-hash = "83c8e58275b40562a3e05b6cbbbcdd4de9020acd3a07a882b21277ace10a7754"
+content-hash = "db995c1aaca642cffc8600370228907f5ed6c6e8701891737a2b6a65fd020fae"
