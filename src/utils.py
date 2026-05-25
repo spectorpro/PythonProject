@@ -4,9 +4,24 @@ import os
 from typing import Dict
 from typing import List
 
-# Настройка логирования вместо print
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Создаём отдельный объект логера для модуля utils
+logger = logging.getLogger('utils')
+logger.setLevel(logging.DEBUG)  # Уровень логирования не меньше, чем DEBUG
+
+# Настраиваем обработчик для записи в файл
+file_handler = logging.FileHandler('logs/utils.log',mode='w', encoding='utf-8')
+file_handler.setLevel(logging.DEBUG)
+
+# Настраиваем форматтер для логера модуля utils
+file_formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Устанавливаем форматтер для обработчика
+file_handler.setFormatter(file_formatter)
+
+# Добавляем обработчик к логеру модуля utils
+logger.addHandler(file_handler)
 
 
 def load_transactions(file_path: str) -> List[Dict]:
