@@ -8,8 +8,11 @@ from typing import List
 logger = logging.getLogger('utils')
 logger.setLevel(logging.DEBUG)  # Уровень логирования не меньше, чем DEBUG
 
+
+log_dir = r'PythonProject1\logs'
+os.makedirs(log_dir, exist_ok=True)
 # Настраиваем обработчик для записи в файл
-file_handler = logging.FileHandler(r'C:\Users\lzspe\PycharmProjects\PythonProject1\logs\utils.log',mode='a', encoding='utf-8')
+file_handler = logging.FileHandler(os.path.join(log_dir, 'utils.log'), mode='a', encoding='utf-8')
 file_handler.setLevel(logging.DEBUG)
 
 # Настраиваем форматтер для логера модуля utils
