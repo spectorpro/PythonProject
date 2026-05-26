@@ -11,7 +11,7 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Заданный API-ключ
-API_KEY = "MYzzlLze2rEY9Er22o6K7GRLbbB1qj0Y"
+API_KEY = os.getenv('API_KEY')
 BASE_URL = "https://api.apilayer.com/exchangerates_data/latest"
 
 
