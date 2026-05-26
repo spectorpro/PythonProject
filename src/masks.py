@@ -5,7 +5,7 @@ logger = logging.getLogger('masks')
 logger.setLevel(logging.DEBUG)  # Уровень логирования не меньше, чем DEBUG
 
 # Настраиваем обработчик для записи в файл
-file_handler = logging.FileHandler('logs/masks.log',mode='w', encoding='utf-8')
+file_handler = logging.FileHandler(r'C:\Users\lzspe\PycharmProjects\PythonProject1\logs\utils.log',mode='a', encoding='utf-8')
 file_handler.setLevel(logging.DEBUG)
 
 # Настраиваем форматтер для логера модуля masks
