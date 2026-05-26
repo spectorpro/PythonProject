@@ -1,0 +1,5 @@
+2026-05-26 16:31:45,789 - utils - ERROR - Файл не найден: non_existent_file.json
+2026-05-26 16:31:45,791 - utils - ERROR - Ошибка парсинга JSON: Expecting value: line 1 column 1 (char 0)
+2026-05-26 16:31:45,792 - utils - ERROR - Указанный путь не является файлом: some_directory
+2026-05-26 16:31:45,795 - utils - ERROR - JSON не содержит список транзакций
+2026-05-26 16:31:45,798 - utils - INFO - Успешно загружено 1 транзакций
