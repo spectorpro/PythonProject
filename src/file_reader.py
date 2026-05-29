@@ -22,7 +22,7 @@ def read_csv_transactions(file_path: str) -> List[Dict]:
     try:
         transactions = []
         with open(file_path, mode='r', encoding='utf-8') as file:
-            reader = csv.DictReader(file)
+            reader = csv.DictReader(file, delimiter=';')
             for row in reader:
                 transactions.append(row)
         return transactions

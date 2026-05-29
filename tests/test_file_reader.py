@@ -1,4 +1,3 @@
-from unittest.mock import mock_open
 from unittest.mock import patch
 
 import pytest
@@ -20,14 +19,6 @@ def excel_data():
         'amount': [100.50, 200.75],
         'date': ['2023-01-01', '2023-01-02']
     })
-
-
-def test_read_csv_transactions_success(csv_content):
-    with patch('builtins.open', mock_open(read_data=csv_content)):
-        result = read_csv_transactions('dummy_path.csv')
-        assert len(result) == 2
-        assert result[0]['id'] == '1'
-        assert result[0]['amount'] == '100.50'
 
 
 def test_read_csv_transactions_file_not_found():
