@@ -50,3 +50,9 @@ warn_return_any = true
 exclude = [
   "venv"
 ]
+
+[tool.coverage.run]
+source = []
+
+[tool.coverage.report]
+show_missing = true

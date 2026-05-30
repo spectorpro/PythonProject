@@ -1,73 +1,129 @@
-import unittest
-from typing import Dict
-from unittest.mock import mock_open
+import os
+from unittest.mock import Mock
 from unittest.mock import patch
 
+import pytest
+import requests
+
 from src.external_api import convert_to_rubles
-from src.utils import load_transactions
+from src.external_api import get_exchange_rate
 
 
-class TestUtils(unittest.TestCase):
+class TestGetExchangeRate:
+    @patch('requests.get')
+    def test_success_response(self, mock_get):
+        """Тест успешного получения курса"""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "success": True,
+            "rates": {"RUB": 90.5}
+        }
+        mock_get.return_value = mock_response
 
-    def test_load_transactions_file_not_found(self) -> None:
-        with patch('os.path.exists', return_value=False):
-            result = load_transactions('non_existent_file.json')
-            self.assertEqual(result, [])
+        with patch.dict(os.environ, {'API_KEY': 'test_key'}):
+            result = get_exchange_rate("USD")
+            assert result == 90.5
 
-    def test_load_transactions_not_a_file(self) -> None:
-        with patch('os.path.exists', return_value=True), \
-             patch('os.path.isfile', return_value=False):
-            result = load_transactions('some_directory')
-            self.assertEqual(result, [])
+    @patch('requests.get')
+    def test_api_key_missing(self, mock_get):
+        """Тест отсутствия API-ключа"""
+        result = get_exchange_rate("USD")
+        assert result is None
 
-    def test_load_transactions_not_a_list(self) -> None:
-        with patch('os.path.exists', return_value=True), \
-             patch('os.path.isfile', return_value=True), \
-             patch('builtins.open', mock_open(read_data='{"not": "a list"}')):
-            result = load_transactions('test.json')
-            self.assertEqual(result, [])
+    @patch('requests.get')
+    def test_unauthorized(self, mock_get):
+        """Тест ошибки аутентификации (401)"""
+        mock_response = Mock()
+        mock_response.status_code = 401
+        mock_get.return_value = mock_response
 
-    def test_load_transactions_valid_data(self) -> None:
-        with patch('os.path.exists', return_value=True), \
-             patch('os.path.isfile', return_value=True), \
-             patch('builtins.open', mock_open(read_data='[{"id": 1, "amount": 100}]')):
-            result = load_transactions('test.json')
-            expected: list[Dict] = [{"id": 1, "amount": 100}]
-            self.assertEqual(result, expected)
+        with patch.dict(os.environ, {'API_KEY': 'test_key'}):
+            result = get_exchange_rate("USD")
+            assert result is None
 
-    def test_load_transactions_invalid_json(self) -> None:
-        with patch('os.path.exists', return_value=True), \
-             patch('os.path.isfile', return_value=True), \
-             patch('builtins.open', mock_open(read_data='invalid json')):
-            result = load_transactions('test.json')
-            self.assertEqual(result, [])
+    @patch('requests.get')
+    def test_rate_not_found(self, mock_get):
+        """Тест когда курс не найден в ответе API"""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "success": True,
+            "rates": {}
+        }
+        mock_get.return_value = mock_response
+
+        with patch.dict(os.environ, {'API_KEY': 'test_key'}):
+            result = get_exchange_rate("USD")
+            assert result is None
+
+    @patch('requests.get')
+    def test_api_error_response(self, mock_get):
+        """Тест ответа API с ошибкой"""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "success": False,
+            "error": {"info": "Test error"}
+        }
+        mock_get.return_value = mock_response
+
+        with patch.dict(os.environ, {'API_KEY': 'test_key'}):
+            result = get_exchange_rate("USD")
+            assert result is None
+
+    @patch('requests.get')
+    def test_timeout_error(self, mock_get):
+        """Тест ошибки таймаута"""
+        mock_get.side_effect = requests.exceptions.Timeout
+
+        with patch.dict(os.environ, {'API_KEY': 'test_key'}):
+            result = get_exchange_rate("USD")
+            assert result is None
 
 
-class TestExternalAPI(unittest.TestCase):
+class TestConvertToRubles:
+    def test_convert_usd_to_rub(self):
+        """Конвертация USD в RUB с успешным получением курса"""
+        transaction = {"amount": 100, "currency": "USD"}
 
-    @patch('src.external_api.get_exchange_rate', return_value=75.0)
-    def test_convert_to_rubles_usd(self, mock_get_rate: unittest.mock.Mock) -> None:
-        transaction: Dict = {'amount': 10, 'currency': 'USD'}
+        with patch('src.external_api.get_exchange_rate', return_value=90.5):
+            result = convert_to_rubles(transaction)
+            assert result == 9050.0
+
+    def test_already_in_rub(self):
+        """Транзакция уже в рублях"""
+        transaction = {"amount": 5000, "currency": "RUB"}
         result = convert_to_rubles(transaction)
-        self.assertAlmostEqual(result, 750.0)
+        assert result == 5000.0
 
-    @patch('src.external_api.get_exchange_rate', return_value=85.0)
-    def test_convert_to_rubles_eur(self, mock_get_rate: unittest.mock.Mock) -> None:
-        transaction: Dict = {'amount': 5, 'currency': 'EUR'}
-        result = convert_to_rubles(transaction)
-        self.assertAlmostEqual(result, 425.0)
+    def test_invalid_transaction_type(self):
+        """Некорректный тип транзакции"""
+        with pytest.raises(ValueError, match="Транзакция должна быть словарем"):
+            convert_to_rubles("not a dict")
 
-    def test_convert_to_rubles_rub(self) -> None:
-        transaction: Dict = {'amount': 1000, 'currency': 'RUB'}
-        result = convert_to_rubles(transaction)
-        self.assertEqual(result, 1000.0)
-
-    @patch('src.external_api.get_exchange_rate', return_value=None)
-    def test_convert_to_rubles_api_error(self, mock_get_rate: unittest.mock.Mock) -> None:
-        transaction: Dict = {'amount': 10, 'currency': 'USD'}
-        with self.assertRaises(ValueError):
+    def test_missing_amount(self):
+        """Отсутствие поля amount"""
+        transaction = {"currency": "USD"}
+        with pytest.raises(ValueError, match="Транзакция не содержит поле 'amount'"):
             convert_to_rubles(transaction)
 
+    def test_missing_currency(self):
+        """Отсутствие поля currency"""
+        transaction = {"amount": 100}
+        with pytest.raises(ValueError, match="Транзакция не содержит поле 'currency'"):
+            convert_to_rubles(transaction)
 
-if __name__ == '__main__':
-    unittest.main()
+    def test_invalid_amount_type(self):
+        """Некорректное значение amount"""
+        transaction = {"amount": "invalid", "currency": "USD"}
+        with pytest.raises(ValueError, match="Некорректное значение amount"):
+            convert_to_rubles(transaction)
+
+    def test_conversion_rate_none(self):
+        """Курс не получен — должна быть ошибка"""
+        transaction = {"amount": 100, "currency": "USD"}
+
+        with patch('src.external_api.get_exchange_rate', return_value=None):
+            with pytest.raises(ValueError, match="Не удалось получить курс для валюты USD"):
+                convert_to_rubles(transaction)
