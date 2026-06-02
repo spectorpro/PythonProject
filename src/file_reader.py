@@ -57,13 +57,13 @@ def read_excel_transactions(file_path: str) -> List[Dict]:
 
 
 # Чтение из CSV
-csv_transactions = read_csv_transactions('C:/Users/lzspe/PycharmProjects/PythonProject1/transactions.csv')
+csv_transactions = read_csv_transactions('C:/Users/lzspe/PycharmProjects/PythonProject1/data/transactions.csv')
 print("Транзакции из CSV:")
 for transaction in csv_transactions:
     print(transaction)
 
 # Чтение из Excel
-excel_transactions = read_excel_transactions('C:/Users/lzspe/PycharmProjects/PythonProject1/transactions_excel.xlsx')
+excel_transactions = read_excel_transactions('C:/Users/lzspe/PycharmProjects/PythonProject1/data/transactions_excel.xlsx')
 print("\nТранзакции из Excel:")
 for transaction in excel_transactions:
     print(transaction)

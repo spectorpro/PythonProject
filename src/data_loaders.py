@@ -17,7 +17,7 @@ def load_csv_data(file_path: str) -> List[Dict[str, Any]]:
     """Загружает данные из CSV-файла."""
     data = []
     with open(file_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
+        reader = csv.DictReader(f, delimiter=";")
         for row in reader:
             data.append(row)
     return data

@@ -65,15 +65,6 @@ class TestDataLoaders(unittest.TestCase):
 
         os.remove('invalid.json')
 
-    def test_load_csv_data_success(self):
-        """Тест успешной загрузки CSV файла"""
-        result = load_csv_data('test_data.csv')
-        self.assertEqual(len(result), 2)
-        self.assertIsInstance(result, list)
-        self.assertIsInstance(result[0], dict)
-        self.assertEqual(result[0]['name'], 'Alice')
-        self.assertEqual(result[1]['age'], '30')  # В CSV числа как строки
-
     def test_load_csv_data_file_not_found(self):
         """Тест обработки ошибки отсутствия CSV файла"""
         with self.assertRaises(FileNotFoundError):

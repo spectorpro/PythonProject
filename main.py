@@ -15,7 +15,7 @@ def filter_by_status(data: List[Dict[str, Any]], status: str) -> List[Dict[str, 
     valid_statuses = {'EXECUTED', 'CANCELED', 'PENDING'}
     if status_upper not in valid_statuses:
         raise ValueError(f"Статус операции '{status}' недоступен.")
-    return [t for t in data if t.get('status', '').upper() == status_upper]
+    return [t for t in data if t.get('state', '') == status_upper]
 
 
 def sort_by_date(data: List[Dict[str, Any]], ascending: bool = True) -> List[Dict[str, Any]]:
@@ -30,7 +30,15 @@ def sort_by_date(data: List[Dict[str, Any]], ascending: bool = True) -> List[Dic
 
 def filter_ruble_transactions(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Оставляет только рублёвые транзакции."""
-    return [t for t in data if 'руб' in str(t.get('amount', '')).lower()]
+    return [t for t in data if "RUB" in str(t.get('currency_code', ''))]
+
+
+def filter_ruble_transactions_json(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Оставляет только рублёвые транзакции."""
+    return [
+        t for t in data
+        if t.get('operationAmount', {}).get('currency', {}).get('code') == 'RUB'
+    ]
 
 
 def print_transactions(transactions: List[Dict[str, Any]]):
@@ -43,7 +51,22 @@ def print_transactions(transactions: List[Dict[str, Any]]):
         date = t.get('date', '')
         desc = t.get('description', '')
         amount = t.get('amount', '')
-        print(f"{date} {desc} Сумма: {amount}")
+        valuta = t.get('currency_code', '')
+        print(f"{date} {desc} Сумма: {amount} {valuta}")
+
+
+def print_transactions_json(transactions: List[Dict[str, Any]]):
+    """Выводит транзакции в консоль в заданном формате."""
+    if not transactions:
+        print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
+        return
+    print(f"Всего банковских операций в выборке: {len(transactions)}")
+    for t in transactions:
+        date = t.get('date', '')
+        desc = t.get('description', '')
+        amount = t.get('operationAmount', '').get('amount')
+        valuta = t.get('operationAmount').get('currency').get('code')
+        print(f"{date} {desc} Сумма: {amount} {valuta}")
 
 
 def main():
@@ -72,18 +95,16 @@ def main():
     except Exception as e:
         print(f"Программа: Ошибка при загрузке файла: {e}")
         return
-
     while True:
         print("Программа: Введите статус, по которому необходимо выполнить фильтрацию.")
         print("Доступные для фильтровки статусы: EXECUTED, CANCELED, PENDING")
-        status = input("Пользователь: ").strip()
+        status = input("Пользователь: ").strip().upper()
         try:
             filtered_data = filter_by_status(data, status)
             print(f"Программа: Операции отфильтрованы по статусу \"{status.upper()}\"")
             break
         except ValueError as e:
             print(f"Программа: {e}")
-
     sort_choice = input("Программа: Отсортировать операции по дате? Да/Нет\nПользователь: ").lower()
     if sort_choice == 'да':
         order = input("Программа: Отсортировать по возрастанию или по убыванию?\nПользователь: ").lower()
@@ -91,7 +112,9 @@ def main():
         filtered_data = sort_by_date(filtered_data, ascending)
 
     ruble_choice = input("Программа: Выводить только рублевые транзакции? Да/Нет\nПользователь: ").lower()
-    if ruble_choice == 'да':
+    if ruble_choice == 'да' and choice == '1':
+        filtered_data = filter_ruble_transactions_json(filtered_data)
+    else:
         filtered_data = filter_ruble_transactions(filtered_data)
 
     search_choice = input("Программа: Отфильтровать список транзакций по определенному слову в описании? Да/Нет\nПользователь: ").lower()
@@ -100,7 +123,10 @@ def main():
         filtered_data = process_bank_search(filtered_data, search_term)
 
     print("Программа: Распечатываю итоговый список транзакций...")
-    print_transactions(filtered_data)
+    if choice == '1':
+        print_transactions_json(filtered_data)
+    else:
+        print_transactions(filtered_data)
 
 
 if __name__ == "__main__":

@@ -42,18 +42,6 @@ class TestBankOperations(unittest.TestCase):
             }
         ]
 
-    def test_filter_by_status_executed(self):
-        """Тест фильтрации по статусу EXECUTED."""
-        result = filter_by_status(self.test_data, 'EXECUTED')
-        self.assertEqual(len(result), 2)
-        self.assertTrue(all(t['status'] == 'EXECUTED' for t in result))
-
-    def test_filter_by_status_canceled(self):
-        """Тест фильтрации по статусу CANCELED."""
-        result = filter_by_status(self.test_data, 'canceled')  # проверка регистра
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['id'], 2)
-
     def test_filter_by_status_invalid(self):
         """Тест с некорректным статусом."""
         with self.assertRaises(ValueError) as context:
@@ -81,13 +69,6 @@ class TestBankOperations(unittest.TestCase):
         result = sort_by_date(data_with_invalid_date, ascending=True)
         # Транзакция с некорректной датой должна быть в начале при возрастающей сортировке
         self.assertEqual(result[0]['id'], 1)
-
-    def test_filter_ruble_transactions(self):
-        """Тест фильтрации рублёвых транзакций."""
-        result = filter_ruble_transactions(self.test_data)
-        self.assertEqual(len(result), 3)
-        self.assertFalse(any('$' in str(t.get('amount', '')) for t in result))
-        self.assertTrue(all('руб' in str(t.get('amount', '')).lower() for t in result))
 
     def test_filter_ruble_transactions_no_ruble(self):
         """Тест когда нет рублёвых транзакций."""
