@@ -23,10 +23,28 @@ def sort_by_date(data: List[Dict[str, Any]], ascending: bool = True) -> List[Dic
     """Сортирует транзакции по дате."""
     def parse_date(date_str: str) -> datetime.datetime:
         try:
-            return datetime.datetime.strptime(date_str, '%d.%m.%Y')
-        except ValueError:
+            # Пробуем разные форматы дат
+            for fmt in ('%d.%m.%Y', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%d'):
+                try:
+                    return datetime.datetime.strptime(date_str, fmt)
+                except ValueError:
+                    continue
             return datetime.datetime.min
-    return sorted(data, key=lambda x: parse_date(x.get('date', '')), reverse=not ascending)
+        except (TypeError, ValueError):
+            return datetime.datetime.min
+
+    valid_transactions = [t for t in data if parse_date(t.get('date', '')) != datetime.datetime.min]
+    invalid_transactions = [t for t in data if parse_date(t.get('date', '')) == datetime.datetime.min]
+
+    sorted_valid = sorted(
+        valid_transactions,
+        key=lambda x: parse_date(x.get('date', '')),
+        reverse=not ascending
+    )
+    if ascending:
+        return sorted_valid + invalid_transactions
+    else:
+        return invalid_transactions + sorted_valid
 
 
 def filter_ruble_transactions(data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -134,10 +152,15 @@ def main():
             break
         except ValueError as e:
             print(f"Программа: {e}")
-    sort_choice = input("Программа: Отсортировать операции по дате? Да/Нет\nПользователь: ").lower()
+    sort_choice = input("Программа: Отсортировать операции по дате? Да/Нет\nПользователь: ").lower().strip()
     if sort_choice == 'да':
-        order = input("Программа: Отсортировать по возрастанию или по убыванию?\nПользователь: ").lower()
-        ascending = 'возрастанию' in order
+        order = input("Программа: Отсортировать по возрастанию или по убыванию?\nПользователь: ").lower().strip()
+        if 'убыванию' in order or 'desc' in order:
+            ascending = False
+            print("Программа: Сортировка по убыванию (от новых к старым)")
+        else:
+            ascending = True
+            print("Программа: Сортировка по возрастанию (от старых к новым)")
         filtered_data = sort_by_date(filtered_data, ascending)
 
     ruble_choice = input("Программа: Выводить только рублевые транзакции? Да/Нет\nПользователь: ").lower()
