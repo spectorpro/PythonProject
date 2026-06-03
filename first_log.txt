@@ -1,0 +1,2 @@
+func1 ok
+func1 ok

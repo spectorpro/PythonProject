@@ -1,0 +1,76 @@
+import json
+import logging
+import os
+from typing import Dict
+from typing import List
+
+# Создаём отдельный объект логера для модуля utils
+logger = logging.getLogger('utils')
+logger.setLevel(logging.DEBUG)  # Уровень логирования не меньше, чем DEBUG
+
+
+log_dir = r'PythonProject1\logs'
+os.makedirs(log_dir, exist_ok=True)
+# Настраиваем обработчик для записи в файл
+file_handler = logging.FileHandler(os.path.join(log_dir, 'utils.log'), mode='a', encoding='utf-8')
+file_handler.setLevel(logging.DEBUG)
+
+# Настраиваем форматтер для логера модуля utils
+file_formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Устанавливаем форматтер для обработчика
+file_handler.setFormatter(file_formatter)
+
+# Добавляем обработчик к логеру модуля utils
+logger.addHandler(file_handler)
+
+
+def load_transactions(file_path: str) -> List[Dict]:
+    """
+    Загружает транзакции из локального JSON‑файла с детальной обработкой ошибок.
+
+    Args:
+        file_path (str): Путь к JSON‑файлу.
+
+    Returns:
+        List[Dict]: Список словарей с транзакциями или пустой список в случае ошибки.
+    """
+    # Проверка существования файла
+    if not os.path.exists(file_path):
+        logger.error(f"Файл не найден: {file_path}")
+        return []
+
+    # Проверка, что это файл (а не директория)
+    if not os.path.isfile(file_path):
+        logger.error(f"Указанный путь не является файлом: {file_path}")
+        return []
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            try:
+                data = json.load(file)
+
+                # Проверка, что данные — это список
+                if isinstance(data, list):
+                    logger.info(f"Успешно загружено {len(data)} транзакций")
+                    return data
+                else:
+                    logger.error("JSON не содержит список транзакций")
+                    return []
+            except json.JSONDecodeError as e:
+                logger.error(f"Ошибка парсинга JSON: {e}")
+                return []
+    except PermissionError:
+        logger.error(f"Нет прав доступа к файлу: {file_path}")
+        return []
+    except IsADirectoryError:
+        logger.error(f"Указан путь к директории вместо файла: {file_path}")
+        return []
+    except UnicodeDecodeError as e:
+        logger.error(f"Ошибка кодировки файла: {e}")
+        return []
+    except OSError as e:
+        logger.error(f"OS ошибка при чтении файла: {e}")
+        return []

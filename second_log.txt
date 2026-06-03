@@ -1,0 +1,2 @@
+func2 error: RuntimeError. Inputs: (), {}
+func2 error: RuntimeError. Inputs: (), {}
