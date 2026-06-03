@@ -7,6 +7,7 @@ from src.bank_operations import process_bank_search
 from src.data_loaders import load_csv_data
 from src.data_loaders import load_json_data
 from src.data_loaders import load_xlsx_data
+from src.widget import mask_account_card, get_date
 
 
 def filter_by_status(data: List[Dict[str, Any]], status: str) -> List[Dict[str, Any]]:
@@ -42,31 +43,59 @@ def filter_ruble_transactions_json(data: List[Dict[str, Any]]) -> List[Dict[str,
 
 
 def print_transactions(transactions: List[Dict[str, Any]]):
-    """Выводит транзакции в консоль в заданном формате."""
+    """Выводит транзакции в консоль в заданном формате с маскировкой счетов/карт и форматированием даты."""
     if not transactions:
         print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
         return
     print(f"Всего банковских операций в выборке: {len(transactions)}")
     for t in transactions:
-        date = t.get('date', '')
+        date = get_date(t.get('date', ''))
         desc = t.get('description', '')
         amount = t.get('amount', '')
         valuta = t.get('currency_code', '')
-        print(f"{date} {desc} Сумма: {amount} {valuta}")
+
+        from_field = t.get('from', '')
+        masked_from = mask_account_card(from_field) if from_field else ''
+
+        to_field = t.get('to', '')
+        masked_to = mask_account_card(to_field) if to_field else ''
+
+        if masked_from and masked_to:
+            print(f"{date} {desc}\n{masked_from} -> {masked_to}\nСумма: {amount} {valuta}")
+        elif masked_from:
+            print(f"{date} {desc}\n{masked_from}\nСумма: {amount} {valuta}")
+        elif masked_to:
+            print(f"{date} {desc}\n{masked_to}\nСумма: {amount} {valuta}")
+        else:
+            print(f"{date} {desc}\nСумма: {amount} {valuta}")
 
 
 def print_transactions_json(transactions: List[Dict[str, Any]]):
-    """Выводит транзакции в консоль в заданном формате."""
+    """Выводит транзакции из JSON в консоль с маскировкой и форматированием."""
     if not transactions:
         print("Не найдено ни одной транзакции, подходящей под ваши условия фильтрации")
         return
     print(f"Всего банковских операций в выборке: {len(transactions)}")
     for t in transactions:
-        date = t.get('date', '')
+        date = get_date(t.get('date', ''))
         desc = t.get('description', '')
-        amount = t.get('operationAmount', '').get('amount')
-        valuta = t.get('operationAmount').get('currency').get('code')
-        print(f"{date} {desc} Сумма: {amount} {valuta}")
+        amount = t.get('operationAmount', {}).get('amount')
+        valuta = t.get('operationAmount', {}).get('currency', {}).get('code')
+
+        from_field = t.get('from', '')
+        masked_from = mask_account_card(from_field) if from_field else ''
+
+        to_field = t.get('to', '')
+        masked_to = mask_account_card(to_field) if to_field else ''
+
+        if masked_from and masked_to:
+            print(f"{date} {desc}\n{masked_from} -> {masked_to}\nСумма: {amount} {valuta}")
+        elif masked_from:
+            print(f"{date} {desc}\n{masked_from}\nСумма: {amount} {valuta}")
+        elif masked_to:
+            print(f"{date} {desc}\n{masked_to}\nСумма: {amount} {valuta}")
+        else:
+            print(f"{date} {desc}\nСумма: {amount} {valuta}")
 
 
 def main():
@@ -108,7 +137,7 @@ def main():
     sort_choice = input("Программа: Отсортировать операции по дате? Да/Нет\nПользователь: ").lower()
     if sort_choice == 'да':
         order = input("Программа: Отсортировать по возрастанию или по убыванию?\nПользователь: ").lower()
-        ascending = 'возраста' in order
+        ascending = 'возрастанию' in order
         filtered_data = sort_by_date(filtered_data, ascending)
 
     ruble_choice = input("Программа: Выводить только рублевые транзакции? Да/Нет\nПользователь: ").lower()
